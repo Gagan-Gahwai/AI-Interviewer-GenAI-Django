@@ -1,0 +1,533 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>My Reports - AI Interviewer</title>
+
+    <link
+        rel="stylesheet"
+        href="{% static 'css/style.css' %}"
+    >
+
+    <style>
+
+        .reports-main {
+            margin-left: 240px;
+            padding: 40px;
+            min-height: 100vh;
+            color: white;
+        }
+
+        .reports-heading {
+            margin-bottom: 30px;
+        }
+
+        .reports-heading h1 {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .reports-heading p {
+            color: #8e97ab;
+        }
+
+        .reports-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 22px;
+            gap: 15px;
+        }
+
+        .report-count {
+            color: #8e97ab;
+            font-size: 14px;
+        }
+
+        .new-report-btn {
+            text-decoration: none;
+            padding: 11px 16px;
+            border-radius: 10px;
+            background: linear-gradient(90deg, #7c3aed, #6366f1);
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .reports-container {
+            display: grid;
+            gap: 14px;
+        }
+
+        .report-row {
+            background: #101625;
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: 0.2s;
+        }
+
+        .report-row:hover {
+            border-color: rgba(139,92,246,0.45);
+            transform: translateY(-2px);
+        }
+
+        .report-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .report-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: rgba(139,92,246,0.12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #a78bfa;
+            font-size: 18px;
+        }
+
+        .report-info h3 {
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .report-info p {
+            color: #818ba0;
+            font-size: 13px;
+        }
+
+        .report-right {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .score-pill {
+            min-width: 62px;
+            text-align: center;
+            padding: 7px 10px;
+            border-radius: 20px;
+            background: rgba(139,92,246,0.10);
+            color: #c4b5fd;
+            font-weight: 700;
+            font-size: 13px;
+        }
+
+        .view-report-btn {
+            border: 1px solid #343d54;
+            background: transparent;
+            color: white;
+            padding: 9px 13px;
+            border-radius: 9px;
+            cursor: pointer;
+        }
+
+        .view-report-btn:hover {
+            border-color: #8b5cf6;
+            background: rgba(139,92,246,0.08);
+        }
+
+        .empty-reports {
+            background: #101625;
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 18px;
+            padding: 60px 30px;
+            text-align: center;
+        }
+
+        .empty-icon {
+            font-size: 35px;
+            color: #8b5cf6;
+            margin-bottom: 15px;
+        }
+
+        .empty-reports h2 {
+            margin-bottom: 8px;
+        }
+
+        .empty-reports p {
+            color: #818ba0;
+            margin-bottom: 22px;
+        }
+
+        @media (max-width: 700px) {
+
+            .reports-main {
+                margin-left: 0;
+                padding: 22px;
+            }
+
+            .reports-toolbar {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .report-row {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .report-right {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body class="dashboard-page">
+
+<div class="dashboard-layout">
+
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar">
+
+        <div class="sidebar-brand">
+            AI<span>Interviewer</span>
+        </div>
+
+        <div class="sidebar-menu">
+
+            <a href="/dashboard/">
+                ◉ Dashboard
+            </a>
+
+            <a href="/interview/new/">
+                ✦ New Interview
+            </a>
+
+            <a href="/reports/" class="active">
+                ▣ My Reports
+            </a>
+
+            <a href="/profile/">
+                ◉ Profile
+            </a>
+
+            <button
+                class="logout-btn"
+                onclick="logout()"
+            >
+                ↪ Logout
+            </button>
+
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN -->
+
+    <main class="reports-main">
+
+
+        <div class="reports-heading">
+
+            <h1>
+                My Reports
+            </h1>
+
+            <p>
+                Review your previous AI-powered interview analyses.
+            </p>
+
+        </div>
+
+
+        <div class="reports-toolbar">
+
+            <div
+                class="report-count"
+                id="reportCount"
+            >
+                Loading reports...
+            </div>
+
+            <a
+                href="/interview/new/"
+                class="new-report-btn"
+            >
+                ✦ New Interview
+            </a>
+
+        </div>
+
+
+        <div
+            class="reports-container"
+            id="reportsList"
+        >
+
+        </div>
+
+    </main>
+
+</div>
+
+
+<script>
+
+const token =
+    localStorage.getItem("access");
+
+
+if (!token) {
+
+    window.location.href = "/";
+
+}
+
+
+/* =========================
+   LOAD REPORTS
+========================= */
+
+async function loadReports() {
+
+    const container =
+        document.getElementById(
+            "reportsList"
+        );
+
+    const reportCount =
+        document.getElementById(
+            "reportCount"
+        );
+
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/interview/reports/",
+                {
+                    headers: {
+                        "Authorization":
+                            "Bearer " + token
+                    }
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            reportCount.innerText =
+                "Unable to load reports.";
+
+            container.innerHTML = `
+                <div class="empty-reports">
+                    <h2>Something went wrong</h2>
+                    <p>
+                        ${data.message || "Please try again."}
+                    </p>
+                </div>
+            `;
+
+            return;
+        }
+
+
+        const reports =
+            data.reports || [];
+
+
+        reportCount.innerText =
+            reports.length +
+            (reports.length === 1
+                ? " report"
+                : " reports");
+
+
+        if (reports.length === 0) {
+
+            container.innerHTML = `
+
+                <div class="empty-reports">
+
+                    <div class="empty-icon">
+                        ✦
+                    </div>
+
+                    <h2>
+                        No reports yet
+                    </h2>
+
+                    <p>
+                        Create your first AI interview report
+                        to see it here.
+                    </p>
+
+                    <a
+                        href="/interview/new/"
+                        class="new-report-btn"
+                    >
+                        Create Interview
+                    </a>
+
+                </div>
+
+            `;
+
+            return;
+        }
+
+
+        container.innerHTML = "";
+
+
+        reports.forEach(report => {
+
+            container.innerHTML += `
+
+                <div class="report-row">
+
+                    <div class="report-left">
+
+                        <div class="report-icon">
+                            ✦
+                        </div>
+
+                        <div class="report-info">
+
+                            <h3>
+                                ${report.title}
+                            </h3>
+
+                            <p>
+                                Interview analysis
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="report-right">
+
+                        <div class="score-pill">
+                            ${report.match_score}%
+                        </div>
+
+                        <button
+                            class="view-report-btn"
+                            onclick="openReport(${report.id})"
+                        >
+                            View Report
+                        </button>
+
+                    </div>
+
+                </div>
+
+            `;
+
+        });
+
+
+    } catch (error) {
+
+        console.error(error);
+
+        reportCount.innerText =
+            "Unable to load reports.";
+
+    }
+
+}
+
+
+/* =========================
+   OPEN REPORT
+========================= */
+
+function openReport(id) {
+
+    window.location.href =
+        "/reports/" + id + "/";
+
+}
+
+
+/* =========================
+   LOGOUT
+========================= */
+
+async function logout() {
+
+    const accessToken =
+        localStorage.getItem("access");
+
+    const refreshToken =
+        localStorage.getItem("refresh");
+
+
+    try {
+
+        if (refreshToken) {
+
+            await fetch(
+                "/api/users/logout/",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json",
+
+                        "Authorization":
+                            "Bearer " + accessToken
+                    },
+
+                    body: JSON.stringify({
+                        refresh:
+                            refreshToken
+                    })
+                }
+            );
+
+        }
+
+    } catch (error) {
+
+        console.log(error);
+
+    } finally {
+
+        localStorage.clear();
+
+        window.location.href = "/";
+
+    }
+
+}
+
+
+loadReports();
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,230 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Interviewer - Register</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+
+<body>
+
+<div class="auth-page">
+
+    <div class="auth-wrapper">
+
+        <div class="auth-left">
+
+            <div class="brand">
+                AI<span>Interviewer</span>
+            </div>
+
+            <h1>
+                Start your
+                <span>AI-powered preparation.</span>
+            </h1>
+
+            <p>
+                Create your account and get personalized
+                interview questions, skill-gap analysis,
+                and preparation plans powered by AI.
+            </p>
+
+            <div class="feature-list">
+
+                <div class="feature">
+                    <div class="feature-icon">✦</div>
+                    Personalized interview preparation
+                </div>
+
+                <div class="feature">
+                    <div class="feature-icon">✓</div>
+                    AI-powered job matching
+                </div>
+
+                <div class="feature">
+                    <div class="feature-icon">↗</div>
+                    Tailored resume generation
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="auth-right">
+
+            <div class="auth-form">
+
+                <h2>Create account</h2>
+
+                <p class="auth-subtitle">
+                    Create your account to start preparing smarter.
+                </p>
+
+
+                <div class="form-group">
+
+                    <label>Username</label>
+
+                    <input
+                        type="text"
+                        id="username"
+                        placeholder="Choose a username"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Email</label>
+
+                    <input
+                        type="email"
+                        id="email"
+                        placeholder="Enter your email"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Password</label>
+
+                    <input
+                        type="password"
+                        id="password"
+                        placeholder="Create a password"
+                    >
+
+                </div>
+
+
+                <button
+                    class="primary-btn"
+                    onclick="register()"
+                >
+                    Create account
+                </button>
+
+
+                <p
+                    class="message"
+                    id="message"
+                ></p>
+
+
+                <div class="auth-footer">
+
+                    Already have an account?
+
+                    <a href="/">
+                        Sign in
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+async function register() {
+
+    const username =
+        document.getElementById("username").value.trim();
+
+    const email =
+        document.getElementById("email").value.trim();
+
+    const password =
+        document.getElementById("password").value;
+
+    const message =
+        document.getElementById("message");
+
+
+    if (!username || !email || !password) {
+
+        message.innerText =
+            "Please fill in all fields.";
+
+        return;
+    }
+
+
+    if (password.length < 6) {
+
+        message.innerText =
+            "Password must be at least 6 characters.";
+
+        return;
+    }
+
+
+    message.innerText =
+        "Creating your account...";
+
+
+    try {
+
+        const response = await fetch(
+            "/api/users/register/",
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    username: username,
+                    email: email,
+                    password: password
+                })
+            }
+        );
+
+
+        const data = await response.json();
+
+
+        if (response.ok) {
+
+            message.innerText =
+                "Account created successfully!";
+
+            setTimeout(() => {
+
+                window.location.href = "/";
+
+            }, 1000);
+
+        } else {
+
+            message.innerText =
+                data.message || "Registration failed.";
+
+        }
+
+    } catch (error) {
+
+        message.innerText =
+            "Unable to connect to server.";
+
+    }
+
+}
+
+</script>
+
+</body>
+</html>

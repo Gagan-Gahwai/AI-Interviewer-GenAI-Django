@@ -1,0 +1,468 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+
+    <title>Dashboard - AI Interviewer</title>
+
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+</head>
+
+<body class="dashboard-page">
+
+<div class="dashboard-layout">
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar">
+
+        <div class="sidebar-brand">
+            AI<span>Interviewer</span>
+        </div>
+
+        <div class="sidebar-menu">
+
+            <a href="/dashboard/" class="active">
+                ◉ Dashboard
+            </a>
+
+            <a href="/interview/new/">
+                ✦ New Interview
+            </a>
+
+            <a href="/reports/">
+                ▣ My Reports
+            </a>
+
+            <a href="/profile/">
+                ◉ Profile
+            </a>
+
+            <button
+                class="logout-btn"
+                onclick="logout()"
+            >
+                ↪ Logout
+            </button>
+
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN CONTENT -->
+
+    <main class="dashboard-main">
+
+        <!-- HEADER -->
+
+        <div class="dashboard-header">
+
+            <div>
+
+                <h1>
+                    Welcome back, <span id="username">User</span> 👋
+                </h1>
+
+                <p>
+                    Prepare smarter. Interview with confidence.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- STATS -->
+
+        <div class="stats-grid">
+
+            <div class="stat-card">
+
+                <div class="stat-label">
+                    Total Reports
+                </div>
+
+                <div
+                    class="stat-value"
+                    id="totalReports"
+                >
+                    0
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-label">
+                    Average Match
+                </div>
+
+                <div
+                    class="stat-value"
+                    id="averageScore"
+                >
+                    0%
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-label">
+                    Best Match
+                </div>
+
+                <div
+                    class="stat-value"
+                    id="bestScore"
+                >
+                    0%
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- DASHBOARD CONTENT -->
+
+        <div class="dashboard-grid">
+
+
+            <!-- START INTERVIEW -->
+
+            <div class="dashboard-card">
+
+                <h2>
+                    Ready for your next interview?
+                </h2>
+
+                <p class="card-subtitle">
+                    Upload your resume and job description
+                    to generate a personalized AI interview report.
+                </p>
+
+                <a
+                    href="/interview/new/"
+                    class="primary-btn"
+                    style="
+                        display: inline-block;
+                        text-decoration: none;
+                        text-align: center;
+                    "
+                >
+                    ✦ Start New Interview
+                </a>
+
+            </div>
+
+
+            <!-- RECENT REPORTS -->
+
+            <div class="dashboard-card">
+
+                <h2>
+                    Recent Reports
+                </h2>
+
+                <p class="card-subtitle">
+                    Your latest interview analyses.
+                </p>
+
+                <div
+                    class="report-list"
+                    id="reportsList"
+                >
+
+                    Loading reports...
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+
+<script>
+
+const token =
+    localStorage.getItem("access");
+
+
+/* =========================
+   AUTH CHECK
+========================= */
+
+if (!token) {
+
+    window.location.href = "/";
+
+}
+
+
+/* =========================
+   LOAD USER
+========================= */
+
+async function loadUser() {
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/users/me/",
+                {
+                    headers: {
+                        "Authorization":
+                            "Bearer " + token
+                    }
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (response.ok) {
+
+            document.getElementById("username")
+                .innerText = data.username;
+
+        }
+
+    } catch (error) {
+
+        console.log(error);
+
+    }
+
+}
+
+
+/* =========================
+   LOAD REPORTS
+========================= */
+
+async function loadReports() {
+
+    const container =
+        document.getElementById(
+            "reportsList"
+        );
+
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/interview/reports/",
+                {
+                    headers: {
+                        "Authorization":
+                            "Bearer " + token
+                    }
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            container.innerText =
+                data.message ||
+                "Failed to load reports.";
+
+            return;
+
+        }
+
+
+        const reports =
+            data.reports || [];
+
+
+        document.getElementById("totalReports")
+            .innerText = reports.length;
+
+
+        if (reports.length === 0) {
+
+            container.innerHTML = `
+                <p class="loading">
+                    No reports yet.
+                </p>
+            `;
+
+            return;
+
+        }
+
+
+        let total = 0;
+        let best = 0;
+
+
+        reports.forEach(report => {
+
+            const score =
+                Number(report.match_score || 0);
+
+            total += score;
+
+            if (score > best) {
+
+                best = score;
+
+            }
+
+        });
+
+
+        const average =
+            Math.round(
+                total / reports.length
+            );
+
+
+        document.getElementById("averageScore")
+            .innerText = average + "%";
+
+
+        document.getElementById("bestScore")
+            .innerText = best + "%";
+
+
+        container.innerHTML = "";
+
+
+        reports.slice(0, 5).forEach(report => {
+
+            container.innerHTML += `
+
+                <div class="report-item">
+
+                    <div>
+
+                        <div class="report-title">
+                            ${report.title}
+                        </div>
+
+                        <div class="report-score">
+                            ${report.match_score}% match
+                        </div>
+
+                    </div>
+
+                    <button
+                        class="view-btn"
+                        onclick="openReport(${report.id})"
+                    >
+                        View
+                    </button>
+
+                </div>
+
+            `;
+
+        });
+
+
+    } catch (error) {
+
+        container.innerText =
+            "Unable to load reports.";
+
+    }
+
+}
+
+
+/* =========================
+   OPEN REPORT
+========================= */
+
+function openReport(reportId) {
+
+    window.location.href =
+        "/reports/" + reportId + "/";
+
+}
+
+
+/* =========================
+   LOGOUT
+========================= */
+
+async function logout() {
+
+    const accessToken =
+        localStorage.getItem("access");
+
+    const refreshToken =
+        localStorage.getItem("refresh");
+
+
+    try {
+
+        if (refreshToken) {
+
+            await fetch(
+                "/api/users/logout/",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json",
+
+                        "Authorization":
+                            "Bearer " + accessToken
+                    },
+
+                    body: JSON.stringify({
+                        refresh: refreshToken
+                    })
+                }
+            );
+
+        }
+
+    } catch (error) {
+
+        console.log(error);
+
+    } finally {
+
+        localStorage.clear();
+
+        window.location.href = "/";
+
+    }
+
+}
+
+
+/* =========================
+   START
+========================= */
+
+loadUser();
+loadReports();
+
+</script>
+
+</body>
+</html>

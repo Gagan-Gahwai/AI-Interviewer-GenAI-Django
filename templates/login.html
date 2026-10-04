@@ -1,0 +1,164 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Interviewer - Login</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+
+<body>
+
+<div class="auth-page">
+
+    <div class="auth-wrapper">
+
+        <div class="auth-left">
+
+            <div class="brand">
+                AI<span>Interviewer</span>
+            </div>
+
+            <h1>
+                Prepare smarter.
+                <span>Interview better.</span>
+            </h1>
+
+            <p>
+                Upload your resume, analyze the job description,
+                and let AI create a personalized interview
+                preparation plan for you.
+            </p>
+
+            <div class="feature-list">
+
+                <div class="feature">
+                    <div class="feature-icon">✦</div>
+                    AI-powered interview questions
+                </div>
+
+                <div class="feature">
+                    <div class="feature-icon">✓</div>
+                    Resume & job matching
+                </div>
+
+                <div class="feature">
+                    <div class="feature-icon">↗</div>
+                    Personalized preparation plan
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="auth-right">
+
+            <div class="auth-form">
+
+                <h2>Welcome back</h2>
+
+                <p class="auth-subtitle">
+                    Sign in to continue your interview preparation.
+                </p>
+
+                <div class="form-group">
+                    <label>Username</label>
+                    <input
+                        type="text"
+                        id="username"
+                        placeholder="Enter your username"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label>Password</label>
+                    <input
+                        type="password"
+                        id="password"
+                        placeholder="Enter your password"
+                    >
+                </div>
+
+                <button class="primary-btn" onclick="login()">
+                    Sign in
+                </button>
+
+                <p class="message" id="message"></p>
+
+                <div class="auth-footer">
+                    Don't have an account?
+                    <a href="/register/">Create one</a>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+async function login() {
+
+    const username =
+        document.getElementById("username").value.trim();
+
+    const password =
+        document.getElementById("password").value;
+
+    const message =
+        document.getElementById("message");
+
+    if (!username || !password) {
+        message.innerText = "Please enter username and password.";
+        return;
+    }
+
+    message.innerText = "Signing in...";
+
+    try {
+
+        const response = await fetch(
+            "/api/users/login/",
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    username,
+                    password
+                })
+            }
+        );
+
+        const data = await response.json();
+
+        if (response.ok) {
+
+            localStorage.setItem("access", data.access);
+            localStorage.setItem("refresh", data.refresh);
+
+            window.location.href = "/dashboard/";
+
+        } else {
+
+            message.innerText =
+                data.message || "Login failed.";
+        }
+
+    } catch (error) {
+
+        message.innerText =
+            "Unable to connect to server.";
+    }
+}
+
+</script>
+
+</body>
+</html>

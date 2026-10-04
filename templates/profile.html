@@ -1,0 +1,188 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+
+    <title>Profile - AI Interviewer</title>
+
+    <link
+        rel="stylesheet"
+        href="{% static 'css/style.css' %}"
+    >
+
+</head>
+
+<body class="dashboard-page">
+
+<div class="dashboard-layout">
+
+    <aside class="sidebar">
+
+        <div class="sidebar-brand">
+            AI<span>Interviewer</span>
+        </div>
+
+        <div class="sidebar-menu">
+
+            <a href="/dashboard/">
+                ◉ Dashboard
+            </a>
+
+            <a href="/interview/new/">
+                ✦ New Interview
+            </a>
+
+            <a href="/reports/">
+                ▣ My Reports
+            </a>
+
+            <a href="/profile/" class="active">
+                ◉ Profile
+            </a>
+
+            <button
+                class="logout-btn"
+                onclick="logout()"
+            >
+                ↪ Logout
+            </button>
+
+        </div>
+
+    </aside>
+
+
+    <main class="dashboard-main">
+
+        <div class="dashboard-header">
+
+            <div>
+                <h1>Profile</h1>
+                <p>Your account information</p>
+            </div>
+
+        </div>
+
+
+        <div class="dashboard-card profile-card">
+
+            <div class="profile-avatar">
+                <span id="avatar">G</span>
+            </div>
+
+            <h2 id="username">Loading...</h2>
+
+            <p id="email">
+                Loading...
+            </p>
+
+        </div>
+
+    </main>
+
+</div>
+
+
+<script>
+
+const token =
+    localStorage.getItem("access");
+
+if (!token) {
+    window.location.href = "/";
+}
+
+
+async function loadProfile() {
+
+    try {
+
+        const response = await fetch(
+            "/api/users/me/",
+            {
+                headers: {
+                    "Authorization":
+                        "Bearer " + token
+                }
+            }
+        );
+
+        const data =
+            await response.json();
+
+        if (!response.ok) {
+
+            window.location.href = "/";
+
+            return;
+        }
+
+        document.getElementById("username")
+            .innerText = data.username;
+
+        document.getElementById("email")
+            .innerText = data.email;
+
+        document.getElementById("avatar")
+            .innerText =
+            data.username.charAt(0).toUpperCase();
+
+    } catch (error) {
+
+        console.log(error);
+
+    }
+
+}
+
+
+async function logout() {
+
+    const accessToken =
+        localStorage.getItem("access");
+
+    const refreshToken =
+        localStorage.getItem("refresh");
+
+    try {
+
+        if (refreshToken) {
+
+            await fetch(
+                "/api/users/logout/",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json",
+
+                        "Authorization":
+                            "Bearer " + accessToken
+                    },
+
+                    body: JSON.stringify({
+                        refresh: refreshToken
+                    })
+                }
+            );
+        }
+
+    } finally {
+
+        localStorage.clear();
+
+        window.location.href = "/";
+
+    }
+
+}
+
+
+loadProfile();
+
+</script>
+
+</body>
+</html>

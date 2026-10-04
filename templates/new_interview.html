@@ -1,0 +1,763 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>New Interview - AI Interviewer</title>
+
+    <link
+        rel="stylesheet"
+        href="{% static 'css/style.css' %}"
+    >
+
+    <style>
+
+        .interview-page {
+            min-height: 100vh;
+            background: #080b14;
+            color: white;
+        }
+
+        .interview-main {
+            margin-left: 240px;
+            padding: 40px;
+            max-width: 1100px;
+        }
+
+        .page-heading {
+            margin-bottom: 30px;
+        }
+
+        .page-heading h1 {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .page-heading p {
+            color: #8e97ab;
+            line-height: 1.6;
+        }
+
+        .step-card {
+            background: #101625;
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 18px;
+            padding: 28px;
+            margin-bottom: 20px;
+        }
+
+        .step-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 22px;
+        }
+
+        .step-number {
+            width: 38px;
+            height: 38px;
+            border-radius: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(139,92,246,0.14);
+            color: #a78bfa;
+            font-weight: 700;
+        }
+
+        .step-header h2 {
+            font-size: 19px;
+            margin: 0;
+        }
+
+        .step-header p {
+            color: #818ba0;
+            font-size: 13px;
+            margin-top: 4px;
+        }
+
+        .upload-box {
+            border: 1px dashed #39425a;
+            border-radius: 14px;
+            padding: 35px 20px;
+            text-align: center;
+            background: #0b101c;
+            transition: 0.2s;
+        }
+
+        .upload-box:hover {
+            border-color: #8b5cf6;
+            background: rgba(139,92,246,0.03);
+        }
+
+        .upload-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+
+        .upload-box h3 {
+            margin-bottom: 7px;
+        }
+
+        .upload-box p {
+            color: #818ba0;
+            font-size: 13px;
+            margin-bottom: 18px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .choose-file-btn {
+            display: inline-block;
+            padding: 10px 16px;
+            border-radius: 9px;
+            border: 1px solid #343d54;
+            background: #111827;
+            color: white;
+            cursor: pointer;
+        }
+
+        .choose-file-btn:hover {
+            border-color: #8b5cf6;
+        }
+
+        .selected-file {
+            margin-top: 14px;
+            color: #a78bfa;
+            font-size: 13px;
+        }
+
+        .field-label {
+            display: block;
+            margin-bottom: 9px;
+            font-size: 14px;
+            color: #d3d7e2;
+        }
+
+        .interview-textarea {
+            width: 100%;
+            min-height: 170px;
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid #293146;
+            background: #0b101c;
+            color: white;
+            resize: vertical;
+            outline: none;
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+        }
+
+        .interview-textarea:focus {
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 3px rgba(139,92,246,0.10);
+        }
+
+        .bottom-action {
+            margin-top: 28px;
+            background: #101625;
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 18px;
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .bottom-action p {
+            color: #818ba0;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .generate-btn {
+            min-width: 220px;
+        }
+
+        .generate-btn.loading {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .message-box {
+            margin-top: 15px;
+            color: #a78bfa;
+            font-size: 14px;
+        }
+
+        @media (max-width: 700px) {
+
+            .interview-main {
+                margin-left: 0;
+                padding: 22px;
+            }
+
+            .bottom-action {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .generate-btn {
+                width: 100%;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body class="interview-page">
+
+
+<div class="dashboard-layout">
+
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar">
+
+        <div class="sidebar-brand">
+            AI<span>Interviewer</span>
+        </div>
+
+        <div class="sidebar-menu">
+
+            <a href="/dashboard/">
+                ◉ Dashboard
+            </a>
+
+            <a
+                href="/interview/new/"
+                class="active"
+            >
+                ✦ New Interview
+            </a>
+
+            <a href="/reports/">
+                ▣ My Reports
+            </a>
+
+            <a href="/profile/">
+                ◉ Profile
+            </a>
+
+            <button
+                class="logout-btn"
+                onclick="logout()"
+            >
+                ↪ Logout
+            </button>
+
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN -->
+
+    <main class="interview-main">
+
+
+        <!-- HEADING -->
+
+        <div class="page-heading">
+
+            <h1>
+                Create New Interview
+            </h1>
+
+            <p>
+                Give us your resume and target job.
+                Our AI will analyze your profile and
+                create a personalized interview preparation report.
+            </p>
+
+        </div>
+
+
+        <!-- STEP 1 -->
+
+        <div class="step-card">
+
+            <div class="step-header">
+
+                <div class="step-number">
+                    01
+                </div>
+
+                <div>
+
+                    <h2>
+                        Upload your resume
+                    </h2>
+
+                    <p>
+                        Upload the latest version of your resume in PDF format.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="upload-box">
+
+                <div class="upload-icon">
+                    ↑
+                </div>
+
+                <h3>
+                    Upload Resume PDF
+                </h3>
+
+                <p>
+                    PDF only • Maximum size 3MB
+                </p>
+
+                <label
+                    for="resume"
+                    class="choose-file-btn"
+                >
+                    Choose PDF
+                </label>
+
+                <input
+                    type="file"
+                    id="resume"
+                    class="file-input"
+                    accept=".pdf"
+                    onchange="showFileName()"
+                >
+
+                <div
+                    class="selected-file"
+                    id="fileName"
+                >
+                    No file selected
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- STEP 2 -->
+
+        <div class="step-card">
+
+            <div class="step-header">
+
+                <div class="step-number">
+                    02
+                </div>
+
+                <div>
+
+                    <h2>
+                        Job description
+                    </h2>
+
+                    <p>
+                        Paste the complete job description for the role.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <label class="field-label">
+                Job Description
+            </label>
+
+            <textarea
+                id="job_description"
+                class="interview-textarea"
+                placeholder="Example: We are looking for a Python Developer with Django, REST API, SQL..."
+            ></textarea>
+
+        </div>
+
+
+        <!-- STEP 3 -->
+
+        <div class="step-card">
+
+            <div class="step-header">
+
+                <div class="step-number">
+                    03
+                </div>
+
+                <div>
+
+                    <h2>
+                        Tell us about yourself
+                    </h2>
+
+                    <p>
+                        Add your background, skills, projects and career goals.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <label class="field-label">
+                About You
+            </label>
+
+            <textarea
+                id="self_description"
+                class="interview-textarea"
+                placeholder="Example: I recently completed BCA and I am learning Python, Django, Data Science and Generative AI..."
+            ></textarea>
+
+        </div>
+
+
+        <!-- ACTION -->
+
+        <div class="bottom-action">
+
+            <p>
+                AI will analyze your resume against the job description
+                and generate technical questions, behavioral questions,
+                skill gaps and a preparation plan.
+            </p>
+
+            <button
+                class="primary-btn generate-btn"
+                id="generateButton"
+                onclick="generateReport()"
+            >
+                ✦ Generate AI Report
+            </button>
+
+        </div>
+
+
+        <div
+            class="message-box"
+            id="message"
+        ></div>
+
+
+    </main>
+
+</div>
+
+
+<script>
+
+
+const token =
+    localStorage.getItem("access");
+
+
+if (!token) {
+
+    window.location.href = "/";
+
+}
+
+
+/* =========================
+   FILE
+========================= */
+
+function showFileName() {
+
+    const file =
+        document.getElementById(
+            "resume"
+        ).files[0];
+
+
+    const fileName =
+        document.getElementById(
+            "fileName"
+        );
+
+
+    if (!file) {
+
+        fileName.innerText =
+            "No file selected";
+
+        return;
+
+    }
+
+
+    fileName.innerText =
+        file.name;
+
+
+}
+
+
+/* =========================
+   GENERATE REPORT
+========================= */
+
+async function generateReport() {
+
+    const resume =
+        document.getElementById(
+            "resume"
+        ).files[0];
+
+
+    const jobDescription =
+        document.getElementById(
+            "job_description"
+        ).value.trim();
+
+
+    const selfDescription =
+        document.getElementById(
+            "self_description"
+        ).value.trim();
+
+
+    const button =
+        document.getElementById(
+            "generateButton"
+        );
+
+
+    const message =
+        document.getElementById(
+            "message"
+        );
+
+
+    /* Validation */
+
+    if (!resume) {
+
+        message.innerText =
+            "Please upload your resume PDF.";
+
+        return;
+
+    }
+
+
+    if (!jobDescription) {
+
+        message.innerText =
+            "Please add the job description.";
+
+        return;
+
+    }
+
+
+    if (!selfDescription) {
+
+        message.innerText =
+            "Please tell us about yourself.";
+
+        return;
+
+    }
+
+
+    if (resume.size > 3 * 1024 * 1024) {
+
+        message.innerText =
+            "Resume must be smaller than 3MB.";
+
+        return;
+
+    }
+
+
+    /* FormData */
+
+    const formData =
+        new FormData();
+
+
+    formData.append(
+        "resume",
+        resume
+    );
+
+
+    formData.append(
+        "job_description",
+        jobDescription
+    );
+
+
+    formData.append(
+        "self_description",
+        selfDescription
+    );
+
+
+    /* Loading */
+
+    button.disabled = true;
+
+    button.classList.add(
+        "loading"
+    );
+
+
+    message.innerText =
+        "AI is analyzing your profile...";
+
+
+    try {
+
+
+        const response =
+            await fetch(
+                "/api/interview/generate-report/",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Authorization":
+                            "Bearer " + token
+                    },
+
+                    body: formData
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (response.ok) {
+
+            message.innerText =
+                "Report generated successfully. Opening report...";
+
+
+            setTimeout(() => {
+
+                window.location.href =
+                    "/reports/"
+                    + data.report_id
+                    + "/";
+
+            }, 500);
+
+
+        } else {
+
+            message.innerText =
+                data.message ||
+                data.error ||
+                "Failed to generate report.";
+
+            button.disabled = false;
+
+            button.classList.remove(
+                "loading"
+            );
+
+        }
+
+
+    } catch (error) {
+
+        console.error(error);
+
+        message.innerText =
+            "Unable to connect to the server.";
+
+        button.disabled = false;
+
+        button.classList.remove(
+            "loading"
+        );
+
+    }
+
+}
+
+
+/* =========================
+   LOGOUT
+========================= */
+
+async function logout() {
+
+    const accessToken =
+        localStorage.getItem(
+            "access"
+        );
+
+
+    const refreshToken =
+        localStorage.getItem(
+            "refresh"
+        );
+
+
+    try {
+
+        if (refreshToken) {
+
+            await fetch(
+                "/api/users/logout/",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json",
+
+                        "Authorization":
+                            "Bearer " + accessToken
+                    },
+
+                    body: JSON.stringify({
+                        refresh:
+                            refreshToken
+                    })
+                }
+            );
+
+        }
+
+    } catch (error) {
+
+        console.log(error);
+
+    } finally {
+
+        localStorage.clear();
+
+        window.location.href =
+            "/";
+
+    }
+
+}
+
+</script>
+
+
+</body>
+
+</html>
