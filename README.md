@@ -23,7 +23,7 @@ The user uploads a resume, adds a job description, and writes a short introducti
 
 ## How It Works
 
-```text
+
 Resume PDF
      +
 Job Description
@@ -44,10 +44,9 @@ DeepSeek via Hugging Face
         ↓
  Tailored Resume PDF
 
-
- ## Blog
+## Blog
 
 I wrote about this project and what I learned while building it:
 
-[Building an AI Interviewer with Django and DeepSeek]
-https://aiinterviewer.hashnode.dev/building-an-ai-interviewer-with-django-and-deepseek
+[Building an AI Interviewer with Django and DeepSeek](https://aiinterviewer.hashnode.dev/building-an-ai-interviewer-with-django-and-deepseek)
+
