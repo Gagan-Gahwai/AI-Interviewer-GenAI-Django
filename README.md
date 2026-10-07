@@ -43,3 +43,11 @@ DeepSeek via Hugging Face
  Report & Interview Preparation
         ↓
  Tailored Resume PDF
+
+
+ ## Blog
+
+I wrote about this project and what I learned while building it:
+
+[Building an AI Interviewer with Django and DeepSeek]
+https://aiinterviewer.hashnode.dev/building-an-ai-interviewer-with-django-and-deepseek
